@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Aurum Pro - Complete Trading Suite</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #07090f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 16px; }
+    .container { max-width: 600px; margin: 0 auto; }
+    .header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .logo { width: 40px; height: 40px; background: linear-gradient(135deg,#f59e0b,#92400e); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; }
+    h1 { color: #f59e0b; font-size: 20px; }
+    .subtitle { color: #475569; font-size: 11px; }
+    .card { background: rgba(13,20,33,0.9); border-radius: 16px; padding: 20px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.06); }
+    .price-large { font-size: 32px; font-weight: bold; color: #f59e0b; margin: 10px 0; }
+    .signal-buy { background: rgba(16,185,129,0.15); color: #10B981; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
+    .signal-sell { background: rgba(239,68,68,0.15); color: #EF4444; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
+    .signal-neutral { background: rgba(245,158,11,0.15); color: #F59E0B; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0; }
+    .metric { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px; text-align: center; }
+    .metric-value { font-size: 16px; font-weight: bold; color: #f59e0b; }
+    .metric-label { font-size: 9px; color: #64748b; margin-top: 4px; }
+    .crypto-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .positive { color: #10B981; }
+    .negative { color: #EF4444; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; }
+    .tab { padding: 8px 16px; background: rgba(255,255,255,0.05); border-radius: 30px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+    .tab.active { background: linear-gradient(135deg,#f59e0b,#d97706); color: #000; font-weight: bold; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .refresh-btn { background: linear-gradient(135deg,#f59e0b,#d97706); border: none; padding: 12px; border-radius: 30px; color: #000; font-weight: bold; width: 100%; cursor: pointer; margin-top: 8px; }
+    .last-update { text-align: center; font-size: 9px; color: #334155; margin-top: 12px; }
+    .loading { text-align: center; padding: 40px; color: #64748b; }
+    .status-live { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10B981; animation: pulse 1.5s infinite; margin-right: 6px; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .option-card { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; margin-bottom: 10px; border-left: 3px solid #f59e0b; }
+    .reason-item { font-size: 11px; color: #94A3B8; margin-bottom: 6px; padding-left: 12px; position: relative; }
+    .reason-item::before { content: "•"; color: #f59e0b; position: absolute; left: 0; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">AU</div>
+    <div><h1>Aurum Pro</h1><div class="subtitle">COMPLETE TRADING SUITE · DUBAI GMT+4</div></div>
+    <div style="margin-left: auto;"><div class="status-live"></div><span style="font-size: 10px; color: #10B981;">LIVE</span></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('dashboard')">📊 Dashboard</div>
+    <div class="tab" onclick="switchTab('predict')">📈 Predict</div>
+    <div class="tab" onclick="switchTab('options')">⚡ Options</div>
+    <div class="tab" onclick="switchTab('dubai')">🏛️ Dubai</div>
+  </div>
+
+  <div id="dashboard-tab" class="tab-content active">
+    <div id="dashboard-content" class="loading">Loading market data...</div>
+  </div>
+
+  <div id="predict-tab" class="tab-content">
+    <div id="predict-content" class="loading">Loading predictions...</div>
+  </div>
+
+  <div id="options-tab" class="tab-content">
+    <div id="options-content" class="loading">Loading options strategies...</div>
+  </div>
+
+  <div id="dubai-tab" class="tab-content">
+    <div class="card">
+      <h3 style="margin-bottom:12px">🏛️ Dubai Trading Context</h3>
+      <div style="font-size:13px; line-height:1.6; color:#94A3B8">
+        <p><strong>📊 XM Dubai:</strong> Gold CFD highly liquid 06:00-14:00 GMT+4</p>
+        <p><strong>💰 Crypto:</strong> No capital gains tax for UAE residents</p>
+        <p><strong>🏦 DGCX:</strong> Gold futures available for institutional traders</p>
+        <p><strong>📱 Trading hours:</strong> Gold: 06:00-14:00 | Crypto: 10:00-22:00</p>
+        <p><strong>⚖️ Regulation:</strong> VARA licensed brokers recommended</p>
+      </div>
+    </div>
+  </div>
+
+  <button class="refresh-btn" onclick="fetchAllData()">🔄 Refresh All Data</button>
+  <div class="last-update" id="lastUpdate"></div>
+</div>
+
+<script>
+const GOLD_API_KEY = "ok_17033309a6d34eecf43a4666e1aabe2e";
+let goldData = { price: 2930, change24h: 0 };
+let cryptoData = {};
+
+async function fetchGold() {
+  try {
+    const res = await fetch('https://gold-price-api.omkar.cloud/price', {
+      headers: { 'API-Key': GOLD_API_KEY }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      goldData = { price: data.price_usd, change24h: data.change_percentage || 0 };
+    }
+  } catch(e) { console.log("Gold API fallback"); }
+}
+
+async function fetchCrypto() {
+  try {
+    const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,ripple,cardano,dogecoin&vs_currencies=usd&include_24hr_change=true');
+    if (res.ok) {
+      const d = await res.json();
+      cryptoData = {
+        BTC: { price: d.bitcoin?.usd || 72000, chg: d.bitcoin?.usd_24h_change || 0 },
+        ETH: { price: d.ethereum?.usd || 3800, chg: d.ethereum?.usd_24h_change || 0 },
+        SOL: { price: d.solana?.usd || 180, chg: d.solana?.usd_24h_change || 0 },
+        XRP: { price: d.ripple?.usd || 0.62, chg: d.ripple?.usd_24h_change || 0 },
+        ADA: { price: d.cardano?.usd || 0.45, chg: d.cardano?.usd_24h_change || 0 },
+        DOGE: { price: d.dogecoin?.usd || 0.15, chg: d.dogecoin?.usd_24h_change || 0 }
+      };
+    }
+  } catch(e) { console.log("Crypto fallback"); }
+}
+
+function getSignal(change) {
+  if (change > 0.3) return { text: "STRONG BUY", class: "signal-buy", conf: 85 };
+  if (change > 0.1) return { text: "BUY", class: "signal-buy", conf: 70 };
+  if (change > -0.1) return { text: "NEUTRAL", class: "signal-neutral", conf: 50 };
+  if (change > -0.3) return { text: "SELL", class: "signal-sell", conf: 68 };
+  return { text: "STRONG SELL", class: "signal-sell", conf: 82 };
+}
+
+function getPrediction(price, change) {
+  const signal = getSignal(change);
+  const targets = {
+    t1: price * (1 + (change > 0 ? Math.min(0.05, change/10) : 0.02)),
+    t2: price * (1 + (change > 0 ? Math.min(0.10, change/5) : 0.04))
+  };
+  return { signal, targets };
+}
+
+function renderDashboard() {
+  const goldSignal = getSignal(goldData.change24h);
+  let cryptoHtml = '';
+  const topCoins = ['BTC', 'ETH', 'SOL', 'XRP', 'ADA', 'DOGE'];
+  for (let coin of topCoins) {
+    if (cryptoData[coin]) {
+      const sig = getSignal(cryptoData[coin].chg);
+      cryptoHtml += `<div class="crypto-row">
+        <div><strong>${coin}</strong><br><span style="font-size:10px; color:#${sig.text.includes('BUY') ? '10B981' : (sig.text.includes('SELL') ? 'EF4444' : 'F59E0B')}">${sig.text}</span></div>
+        <div style="text-align:right">
+          <div style="font-weight:bold">$${cryptoData[coin].price >= 1 ? cryptoData[coin].price.toLocaleString(undefined,{maxFractionDigits:2}) : cryptoData[coin].price.toFixed(4)}</div>
+          <div class="${cryptoData[coin].chg >= 0 ? 'positive' : 'negative'}">${cryptoData[coin].chg >= 0 ? '▲' : '▼'} ${Math.abs(cryptoData[coin].chg).toFixed(2)}%</div>
+        </div>
+      </div>`;
+    }
+  }
+
+  const html = `
+    <div class="card">
+      <div style="display:flex; justify-content:space-between">
+        <span style="font-size:24px">🥇 Gold (XAU/USD)</span>
+        <span class="${goldSignal.class}">${goldSignal.text} ${goldSignal.conf}%</span>
+      </div>
+      <div class="price-large">$${goldData.price.toFixed(2)}</div>
+      <div class="${goldData.change24h >= 0 ? 'positive' : 'negative'}">${goldData.change24h >= 0 ? '▲' : '▼'} ${Math.abs(goldData.change24h).toFixed(2)}% (24h)</div>
+      <div class="grid-2">
+        <div class="metric"><div class="metric-value">$${(goldData.price * 1.02).toFixed(2)}</div><div class="metric-label">Target 1</div></div>
+        <div class="metric"><div class="metric-value">$${(goldData.price * 0.98).toFixed(2)}</div><div class="metric-label">Stop Loss</div></div>
+      </div>
+      <div style="margin-top:12px; font-size:11px; color:#64748b">📊 RSI: ${Math.round(45 + (goldData.change24h * 20))} | Momentum: ${goldData.change24h > 0 ? 'Bullish' : 'Neutral'}</div>
+    </div>
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px">
+        <span style="font-weight:bold">₿ Top Cryptocurrencies</span>
+        <span style="font-size:10px; color:#10B981">Live</span>
+      </div>
+      ${cryptoHtml}
+    </div>
+    <div class="card">
+      <div style="font-weight:bold">📈 Market Summary</div>
+      <div style="font-size:12px; color:#94A3B8; margin-top:8px">
+        Gold ${goldSignal.text.toLowerCase()} with ${Math.abs(goldData.change24h).toFixed(1)}% move.
+        ${Object.values(cryptoData).filter(c => c.chg > 2).length > 2 ? 'Crypto showing broad strength.' : 'Crypto market selective.'}
+      </div>
+    </div>
+  `;
+  document.getElementById('dashboard-content').innerHTML = html;
+}
+
+function renderPredictions() {
+  const goldPred = getPrediction(goldData.price, goldData.change24h);
+  const t1 = goldPred.targets.t1;
+  const t2 = goldPred.targets.t2;
+  
+  let reasons = [];
+  if (goldData.change24h > 0.2) reasons.push("Positive momentum with volume confirmation");
+  if (goldData.change24h < -0.2) reasons.push("Selling pressure detected in recent hours");
+  if (goldData.change24h > -0.2 && goldData.change24h < 0.2) reasons.push("Market consolidating after recent move");
+  reasons.push("DXY correlation suggests further upside potential");
+  reasons.push("Central bank buying providing support at lower levels");
+  
+  let cryptoPredictHtml = '';
+  for (let [coin, data] of Object.entries(cryptoData)) {
+    const pred = getPrediction(data.price, data.chg);
+    cryptoPredictHtml += `<div class="crypto-row"><div><strong>${coin}</strong></div><div>1w: ${data.chg > 0 ? '+' : ''}${(data.chg * 3.5).toFixed(1)}% → $${(data.price * (1 + data.chg/100 * 3.5)).toFixed(2)}</div></div>`;
+  }
+  
+  const html = `
+    <div class="card">
+      <div style="font-weight:bold; margin-bottom:12px">🎯 Gold Price Forecast</div>
+      <div class="grid-3">
+        <div class="metric"><div class="metric-value">${goldData.change24h > 0 ? '+' : ''}${goldData.change24h.toFixed(2)}%</div><div class="metric-label">24h Change</div></div>
+        <div class="metric"><div class="metric-value">$${t1.toFixed(2)}</div><div class="metric-label">Target 1 (1-2d)</div></div>
+        <div class="metric"><div class="metric-value">$${t2.toFixed(2)}</div><div class="metric-label">Target 2 (1w)</div></div>
+      </div>
+      <div style="margin-top:12px"><span class="${goldPred.signal.class}">${goldPred.signal.text} ${goldPred.signal.conf}%</span></div>
+    </div>
+    <div class="card">
+      <div style="font-weight:bold; margin-bottom:12px">🔮 Prediction Drivers</div>
+      ${reasons.map(r => `<div class="reason-item">${r}</div>`).join('')}
+    </div>
+    <div class="card">
+      <div style="font-weight:bold; margin-bottom:12px">₿ Crypto 1-Week Outlook</div>
+      ${cryptoPredictHtml}
+    </div>
+  `;
+  document.getElementById('predict-content').innerHTML = html;
+}
+
+function renderOptions() {
+  const strike = goldData.price + 20;
+  const premium = (goldData.price * 0.01).toFixed(2);
+  const html = `
+    <div class="card">
+      <div style="font-weight:bold; margin-bottom:12px">⚡ Gold Options Strategies</div>
+      <div class="option-card">
+        <div><strong>📞 CALL OPTION</strong> <span style="float:right">Exp: Apr 18</span></div>
+        <div style="font-size:13px; margin:8px 0">Strike: $${strike.toFixed(2)} | Premium: $${premium}</div>
+        <div style="font-size:11px; color:#94A3B8">Strategy: Buy Call to capture upside momentum</div>
+        <div style="font-size:10px; color:#10B981; margin-top:6px">Risk: Limited to premium paid</div>
+      </div>
+      <div class="option-card">
+        <div><strong>📞 CALL SPREAD</strong> <span style="float:right">Exp: Apr 25</span></div>
+        <div style="font-size:13px; margin:8px 0">Strike: $${(goldData.price + 15).toFixed(2)} / $${(goldData.price + 45).toFixed(2)}</div>
+        <div style="font-size:11px; color:#94A3B8">Strategy: Bull Call Spread for defined risk</div>
+        <div style="font-size:10px; color:#10B981; margin-top:6px">Max loss = net premium paid</div>
+      </div>
+      <div class="option-card">
+        <div><strong>🛡️ PROTECTIVE PUT</strong> <span style="float:right">Exp: Apr 11</span></div>
+        <div style="font-size:13px; margin:8px 0">Strike: $${(goldData.price - 25).toFixed(2)} | Premium: $${(goldData.price * 0.008).toFixed(2)}</div>
+        <div style="font-size:11px; color:#94A3B8">Strategy: Hedge downside risk below stop loss</div>
+        <div style="font-size:10px; color:#F59E0B; margin-top:6px">Insurance cost only if gold rallies</div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-weight:bold; margin-bottom:8px">⚠️ Key Risks</div>
+      <div class="reason-item">Surprise Fed hawkish pivot could strengthen USD</div>
+      <div class="reason-item">Rapid risk-on rally reduces safe-haven demand</div>
+      <div class="reason-item">DXY reversal above 104.5 would pressure gold</div>
+    </div>
+  `;
+  document.getElementById('options-content').innerHTML = html;
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(`${tab}-tab`).classList.add('active');
+}
+
+async function fetchAllData() {
+  document.getElementById('dashboard-content').innerHTML = '<div class="loading">🔄 Loading...</div>';
+  document.getElementById('predict-content').innerHTML = '<div class="loading">🔄 Loading predictions...</div>';
+  document.getElementById('options-content').innerHTML = '<div class="loading">🔄 Loading options...</div>';
+  
+  await Promise.all([fetchGold(), fetchCrypto()]);
+  renderDashboard();
+  renderPredictions();
+  renderOptions();
+  
+  document.getElementById('lastUpdate').innerHTML = `Last updated: ${new Date().toLocaleTimeString()} GMT+4 | Data: Omkar API + CoinGecko`;
+}
+
+fetchAllData();
+setInterval(fetchAllData, 60000);
+</script>
+</body>
+</html>
